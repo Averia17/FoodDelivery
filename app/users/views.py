@@ -2,7 +2,7 @@ from config.db.manager import get_db
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 from users.models import User as UserModel
-from users.schemas import UserSchema
+from users.schemas import UserSchema, UserUpdateSchema
 
 router = APIRouter()
 
@@ -20,3 +20,8 @@ async def get_users(db: AsyncSession = Depends(get_db)):
 @router.post("/", response_model=UserSchema)
 async def create_user(user: UserSchema, db: AsyncSession = Depends(get_db)):
     return await UserModel.create(db, **user.model_dump())
+
+
+@router.patch("/{pk}", response_model=UserSchema)
+async def update_user(pk: int, user_attrs: UserUpdateSchema, db: AsyncSession = Depends(get_db)):
+    return await UserModel.update(db, pk, user_attrs.model_dump(exclude_unset=True))

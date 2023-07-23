@@ -11,3 +11,8 @@ class UserSchema(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class UserUpdateSchema(BaseModel):
+    full_name: Optional[str] = None
+    phone_number: Optional[str] = None
