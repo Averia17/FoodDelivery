@@ -1,8 +1,10 @@
 from config.db.manager import get_db
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
+
+from config.security import get_password_hash
 from users.models import User as UserModel
-from users.schemas import UserSchema, UserUpdateSchema
+from users.schemas import UserSchema, UserUpdateSchema, UserCreateSchema
 
 router = APIRouter()
 
@@ -18,8 +20,13 @@ async def get_users(db: AsyncSession = Depends(get_db)):
 
 
 @router.post("/", response_model=UserSchema)
-async def create_user(user: UserSchema, db: AsyncSession = Depends(get_db)):
-    return await UserModel.create(db, **user.model_dump())
+async def create_user(body: UserCreateSchema, db: AsyncSession = Depends(get_db)):
+    new_user = UserModel.create(
+        db,
+        email=body.email,
+        password=get_password_hash(body.password),
+    )
+    return await new_user
 
 
 @router.patch("/{pk}", response_model=UserSchema)

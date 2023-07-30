@@ -13,6 +13,10 @@ class UserSchema(BaseModel):
         from_attributes = True
 
 
+class UserCreateSchema(UserSchema):
+    password: str
+
+
 class UserUpdateSchema(BaseModel):
     full_name: Optional[str] = None
     phone_number: Optional[str] = None

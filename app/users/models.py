@@ -8,3 +8,4 @@ class User(Base, CRUDBase):
     email = Column(String, unique=True, nullable=False)
     full_name = Column(String, nullable=True)
     phone_number = Column(String)
+    password = Column(String, nullable=False)

@@ -21,3 +21,8 @@ def get_db_url(driver="asyncpg"):
 BACKEND_CORS_ORIGINS: List[AnyHttpUrl] = []
 DATABASE_URL = get_db_url()
 SYNC_DATABASE_URL = get_db_url("psycopg2")
+
+
+ACCESS_TOKEN_EXPIRE_MINUTES = 15
+SECRET_KEY = "SECRET_KEY"
+ALGORITHM = "HS256"
