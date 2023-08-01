@@ -15,6 +15,6 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: Rename env file
-      run: mv ./app/.env ./app/.env
+      run: mv ./app/.env-example ./app/.env
     - name: Build the Docker compose
       run: docker-compose build

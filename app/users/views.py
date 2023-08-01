@@ -2,7 +2,7 @@ from config.db.manager import get_db
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from config.security import get_password_hash
+from users.auth.services import get_password_hash
 from users.models import User as UserModel
 from users.schemas import UserSchema, UserUpdateSchema, UserCreateSchema
 
