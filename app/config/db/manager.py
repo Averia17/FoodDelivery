@@ -4,7 +4,6 @@ from typing import AsyncIterator
 from fastapi import Depends, HTTPException
 from fastapi.security import OAuth2PasswordBearer
 from jose import jwt
-from sqlalchemy import select
 from starlette import status
 
 from config import settings
@@ -91,7 +90,7 @@ async def get_current_user_from_token(
             raise credentials_exception
     except jwt.JWTError:
         raise credentials_exception
-    user = await UserModel.get_user_by_email(db, email)
+    user = await UserModel.get_by_email(db, email)
     if not user:
         raise credentials_exception
     return user

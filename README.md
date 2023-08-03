@@ -1,4 +1,4 @@
-q# Food Delivery
+# Food Delivery
 
 ## General info
 This project is a ecommerce web application for online ordering food.
