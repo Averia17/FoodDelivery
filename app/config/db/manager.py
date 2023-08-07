@@ -1,6 +1,12 @@
 import contextlib
 from typing import AsyncIterator
 
+from fastapi import Depends, HTTPException
+from fastapi.security import OAuth2PasswordBearer
+from jose import jwt
+from starlette import status
+
+from config import settings
 from config.db import Base
 from sqlalchemy.ext.asyncio import (
     AsyncConnection,
@@ -9,6 +15,7 @@ from sqlalchemy.ext.asyncio import (
     async_sessionmaker,
     create_async_engine,
 )
+from users.models import User as UserModel
 
 
 class DatabaseSessionManager:
@@ -65,3 +72,25 @@ sessionmanager = DatabaseSessionManager()
 async def get_db():
     async with sessionmanager.session() as session:
         yield session
+
+
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="api/auth/token")
+
+
+async def get_current_user_from_token(
+    db: AsyncSession = Depends(get_db), token: str = Depends(oauth2_scheme)
+) -> UserModel:
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED, detail="Could not validate credentials"
+    )
+    try:
+        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
+        email: str = payload.get("sub")
+        if email is None:
+            raise credentials_exception
+    except jwt.JWTError:
+        raise credentials_exception
+    user = await UserModel.get_by_email(db, email)
+    if not user:
+        raise credentials_exception
+    return user
