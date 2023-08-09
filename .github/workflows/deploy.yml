@@ -2,26 +2,19 @@ name: Docker Image CI
 
 on:
   push:
-    branches: [ "master" ]
-  pull_request:
-    branches: [ "master" ]
+    branches:
+      - master
 
 jobs:
-
   build:
-
     runs-on: ubuntu-latest
-
     steps:
-    - name: Install SSH Key
-      uses: D3rHase/ssh-command-action@v0.2.2
-      with:
-        key: ${{ secrets.SSH_PRIVATE_KEY }}
-        known_hosts: '|1|bod4cpcmDCfptRfBF0tGJ0og1+s=|sQUuFdRdl6lTTUnsItzV2pch4Q4= ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC1upqfJDpeCX6U7mFfXXEDYYyZS7Qd/b4W17R4Xkbf7JtFDM/8h1CZqp2MMyHYlORuBRzUaY99WP18yYv+ieMJXdbx2KiKXYSD91e2nMEAp+o9hDQ4+pFgQuh+lnZyK4K4ouOmkUxzTZOe2i1EGyhO8YNALWGjlX3/siu+KhzOv9zQepXlV5PvtymmSi3kqEJZMgGiwhWJ/L7K+UO48QJLwwQ33yWEAJ5mYBLYa5sbJrSiDvrs8E3qAxvYbyxbX4O690oFlDxEBFdtrkVzm8wB0EglwrjpYUxFujPTCuDwZGr05PG1zQaJFx6BfbZfX1GaDvR/QmexSt1b73iEEDi7'
-    - name: Adding Known Hosts
-      run: ssh-keyscan -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
-    - name: Deploy with rsync
-      run: rsync -avz ./ ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:./
+      - uses: actions/checkout@v2
+      - run: set -eu
+      - run: mkdir "$HOME/.ssh"
+      - run: echo "${{ secrets.SSH_PRIVATE_KEY }}" > "$HOME/.ssh/key"
+      - run: chmod 600 "$HOME/.ssh/key"
+      - run: rsync -e "ssh -i $HOME/.ssh/key -o StrictHostKeyChecking=no" --archive --compress --delete . averia@s0.serv00.com:/usr/home/averia
 #
 #    - uses: actions/checkout@v3
 #    - name: Rename env file
