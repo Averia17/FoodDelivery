@@ -19,7 +19,11 @@ async def get_categories(db: AsyncSession = Depends(get_db)):
 
 
 @router.post("/", response_model=CategorySchema)
-async def create_category(body: CategoryCreateSchema, db: AsyncSession = Depends(get_db)):
+async def create_category(
+    body: CategoryCreateSchema,
+    db: AsyncSession = Depends(get_db),
+    is_manager: Exception | None = Depends(is_current_user_manager),
+):
     new_category = CategoryModel.create(
         db,
         name=body.name,
@@ -28,7 +32,12 @@ async def create_category(body: CategoryCreateSchema, db: AsyncSession = Depends
 
 
 @router.patch("/{pk}", response_model=CategorySchema)
-async def update_category(pk: int, category_attrs: CategoryUpdateSchema, db: AsyncSession = Depends(get_db)):
+async def update_category(
+    pk: int,
+    category_attrs: CategoryUpdateSchema,
+    db: AsyncSession = Depends(get_db),
+    is_manager: Exception | None = Depends(is_current_user_manager),
+):
     return await CategoryModel.update(db, pk, category_attrs.model_dump(exclude_unset=True))
 
 

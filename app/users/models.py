@@ -1,7 +1,16 @@
-from config.db import Base
-from sqlalchemy import Column, String, Boolean
+from sqlalchemy.ext.asyncio import AsyncSession
 
-from config.db.base_crud import UserCRUD
+from config.db import Base
+from sqlalchemy import Column, String, Boolean, select
+
+from config.db.base_crud import CRUDBase
+
+
+class UserCRUD(CRUDBase):
+    @classmethod
+    async def get_by_email(cls, db: AsyncSession, email: str):
+        user = (await db.execute(select(cls).where(cls.email == email))).scalars().first()
+        return user
 
 
 class User(Base, UserCRUD):

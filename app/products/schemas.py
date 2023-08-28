@@ -4,6 +4,7 @@ from pydantic import BaseModel
 
 
 class ProductSchema(BaseModel):
+    id: Optional[int] = None
     name: Optional[str] = None
     is_active: Optional[bool] = True
     description: Optional[str] = None
