@@ -13,7 +13,7 @@ class ProductSchema(BaseModel):
     category_id: Optional[int] = None
 
 
-class ProductCreateSchema(ProductSchema):
+class ProductCreateSchema(BaseModel):
     name: str
     is_active: bool = True
     discount: int = 0

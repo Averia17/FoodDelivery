@@ -1,6 +1,3 @@
-from pydantic import BaseModel
-from sqlalchemy import select
-
 from config.db.manager import get_db, is_current_user_manager
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -47,12 +44,7 @@ async def create_product(
 ):
     new_product = ProductModel.create(
         db,
-        name=body.name,
-        is_active=body.is_active,
-        description=body.description,
-        discount=body.discount,
-        price=body.price,
-        category_id=body.category_id,
+        **body.model_dump(exclude_unset=True),
     )
     return await new_product
 
