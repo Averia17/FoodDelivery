@@ -94,3 +94,8 @@ async def get_current_user_from_token(
     if not user:
         raise credentials_exception
     return user
+
+
+async def is_current_user_manager(user: UserModel = Depends(get_current_user_from_token)):
+    if not user.is_manager:
+        raise HTTPException(status_code=404, detail="You are not manager")

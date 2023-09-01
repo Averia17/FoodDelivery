@@ -34,10 +34,3 @@ class CRUDBase:
         await db.delete(obj)
         await db.commit()
         return obj
-
-
-class UserCRUD(CRUDBase):
-    @classmethod
-    async def get_by_email(cls, db: AsyncSession, email: str):
-        user = (await db.execute(select(cls).where(cls.email == email))).scalars().first()
-        return user
