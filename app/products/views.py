@@ -1,10 +1,12 @@
+from fastapi_filter import FilterDepends
+
 from config.db.manager import get_db, is_current_user_manager
 from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from products.models import Product as ProductModel
-from products.schemas import ProductSchema, ProductCreateSchema, ProductUpdateSchema
-from products.services import filtering
+from products.schemas import ProductSchema, ProductCreateSchema, ProductUpdateSchema, ProductFilter
 
 router = APIRouter()
 
@@ -16,23 +18,11 @@ async def get_product(pk: int, db: AsyncSession = Depends(get_db)):
 
 @router.get("/", response_model=list[ProductSchema])
 async def get_products(
-    db: AsyncSession = Depends(get_db),
-    category_id: int | None = None,
-    price__gte: float | None = None,
-    price__lte: float | None = None,
+    product_filter: ProductFilter = FilterDepends(ProductFilter),
+    db: AsyncSession = Depends(get_db)
 ):
-    params = locals().copy()
-
-    valid_params = dict()
-    list_of_valid_params = list(ProductSchema.model_fields)
-
-    for param in params:
-        param_as_field_name = param.split("__")[0]
-        if params[param] and param_as_field_name in list_of_valid_params:
-            valid_params[param] = params[param]
-
-    products = await ProductModel.get_all(db)
-    products = filtering(products, valid_params)
+    query = product_filter.filter(select(ProductModel))
+    products = await ProductModel.filter(db, query)
     return products
 
 

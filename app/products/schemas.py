@@ -1,6 +1,21 @@
 from typing import Optional
+from fastapi_filter.contrib.sqlalchemy import Filter
 
 from pydantic import BaseModel
+
+from products.models import Product
+
+
+class ProductFilter(Filter):
+    price__lte: Optional[float] = None
+    price__gte: Optional[float] = None
+    category_id: Optional[int] = None
+    search: Optional[str] = None
+
+    class Constants(Filter.Constants):
+        model = Product
+        search_field_name = "search"
+        search_model_fields = ["name", ]
 
 
 class ProductSchema(BaseModel):
