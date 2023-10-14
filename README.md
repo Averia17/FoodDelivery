@@ -29,7 +29,7 @@ pre-commit install
 ```
 
 ### If you change something in database use migrations:
-**Import model to app/config/db/\__init\__.py** \
+**Import model to app/alembic/env.py** \
 Than create migration
 ```
 docker-compose exec backend alembic revision --autogenerate
