@@ -19,6 +19,11 @@ if config.config_file_name is not None:
 
 from config.db import Base
 
+# imported for Alembic
+from users.models import User
+from products.models import Product
+from products.categories.models import Category
+
 config.set_main_option("sqlalchemy.url", SYNC_DATABASE_URL)
 target_metadata = Base.metadata
 
