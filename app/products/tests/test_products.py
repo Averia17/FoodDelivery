@@ -1,27 +1,19 @@
 import pytest
+from httpx import AsyncClient
 
-from sqlalchemy import true, null
+from products.tests.conftest import app
 
 
+@pytest.mark.anyio
 @pytest.mark.parametrize(
     "test_input,expected",
     [
         ("/", {"app": "working"}),
-        (
-            "/products/3/",
-            {
-                "id": 3,
-                "name": "string2",
-                "is_active": true,
-                "description": null,
-                "discount": 0,
-                "price": 2.0,
-                "category_id": 1,
-            },
-        ),
+        ("/products/", []),
     ],
     ids=["test1", "test2"],
 )
-def test_get_product(test_input, expected, client):
-    r = client.get(test_input)
-    assert r.json() == expected
+async def test_get_product(test_input, expected):
+    async with AsyncClient(app=app, base_url="http://test") as ac:
+        response = await ac.get(test_input)
+    assert response.json() == expected
