@@ -1,39 +1,38 @@
 import asyncio
+from contextlib import asynccontextmanager
 
 import pytest
 import pytest_asyncio
-from sqlalchemy.pool import NullPool
-from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
-from sqlalchemy.orm import sessionmaker
-from typing import AsyncGenerator
 
-from config.db import Base
-from config.db.manager import get_db
+from config import settings
+from config.db.manager import get_db, sessionmanager
 from main import app
 
 
-DATABASE_URL = "postgresql+asyncpg://postgres:123@localhost:6000/FoodDeliveryTest"
+@asynccontextmanager
+@pytest_asyncio.fixture(autouse=True, scope="session")
+async def create_session():
+    sessionmanager.init(settings.TEST_DATABASE_URL)
+    print("session starts")
+    async with sessionmanager.connect() as connection:
+        await sessionmanager.create_all(connection)
+    yield
+    print("session finishes")
+    async with sessionmanager.connect() as connection:
+        await sessionmanager.drop_all(connection)
+    await sessionmanager.close()
 
-engine_test = create_async_engine(DATABASE_URL, poolclass=NullPool)
-async_session_maker = sessionmaker(engine_test, class_=AsyncSession, expire_on_commit=False)
-Base.metadata.bind = engine_test
 
-
-async def override_get_db() -> AsyncGenerator[AsyncSession, None]:
-    async with async_session_maker as session:
+async def override_get_db():
+    async with sessionmanager.session() as session:
+        print("getting test db")
         yield session
 
 
-app.dependency_overrides[get_db] = override_get_db
-
-
-@pytest_asyncio.fixture(autouse=True, scope="session")
-async def prepare_database():
-    async with engine_test.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
-    yield
-    async with engine_test.begin() as conn:
-        await conn.run_sync(Base.metadata.drop_all)
+@pytest_asyncio.fixture(autouse=True)
+async def change_db_in_app():
+    app.dependency_overrides[get_db] = override_get_db
+    print("changing_db_in_app")
 
 
 @pytest.fixture(scope="session")

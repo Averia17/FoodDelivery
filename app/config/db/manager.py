@@ -4,6 +4,7 @@ from typing import AsyncIterator
 from fastapi import Depends, HTTPException
 from fastapi.security import OAuth2PasswordBearer
 from jose import jwt
+from sqlalchemy import NullPool
 from starlette import status
 
 from config import settings
@@ -24,7 +25,7 @@ class DatabaseSessionManager:
         self._sessionmaker: async_sessionmaker | None = None
 
     def init(self, host: str):
-        self._engine = create_async_engine(host)
+        self._engine = create_async_engine(host, poolclass=NullPool)
         self._sessionmaker = async_sessionmaker(autocommit=False, bind=self._engine)
 
     async def close(self):
