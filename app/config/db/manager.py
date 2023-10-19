@@ -7,7 +7,6 @@ from jose import jwt
 from starlette import status
 
 from config import settings
-from config.db import Base
 from sqlalchemy.ext.asyncio import (
     AsyncConnection,
     AsyncEngine,
@@ -15,6 +14,8 @@ from sqlalchemy.ext.asyncio import (
     async_sessionmaker,
     create_async_engine,
 )
+
+from config.db import Base
 from users.models import User as UserModel
 
 
@@ -23,7 +24,7 @@ class DatabaseSessionManager:
         self._engine: AsyncEngine | None = None
         self._sessionmaker: async_sessionmaker | None = None
 
-    def init(self, host: str):
+    def init(self, host: str = settings.DATABASE_URL):
         self._engine = create_async_engine(host)
         self._sessionmaker = async_sessionmaker(autocommit=False, bind=self._engine)
 

@@ -1,27 +1,13 @@
+import http
+
 import pytest
 
-from sqlalchemy import true, null
 
+@pytest.mark.asyncio
+async def test_get_products(client, product_factory):
+    products = await product_factory.create_batch(3)
 
-@pytest.mark.parametrize(
-    "test_input,expected",
-    [
-        ("/", {"app": "working"}),
-        (
-            "/products/3/",
-            {
-                "id": 3,
-                "name": "string2",
-                "is_active": true,
-                "description": null,
-                "discount": 0,
-                "price": 2.0,
-                "category_id": 1,
-            },
-        ),
-    ],
-    ids=["test1", "test2"],
-)
-def test_get_product(test_input, expected, client):
-    r = client.get(test_input)
-    assert r.json() == expected
+    resp = await client.get("api/products/")
+    assert resp.status_code == http.HTTPStatus.OK
+    assert len(resp.json()) == len(products)
+    assert sorted([p.id for p in products]) == sorted([data["id"] for data in resp.json()])
