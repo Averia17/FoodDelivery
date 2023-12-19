@@ -13,12 +13,26 @@ from config.db import Base
 from config.settings import DATABASE_URL
 from products.categories.models import Category
 from products.models import Product
+from users.auth.services import get_password_hash
+from users.models import User
 
 
 @pytest_asyncio.fixture
 async def client():
-    async with AsyncClient(app=app, base_url="http://localhost") as async_client:
+    async with (AsyncClient(app=app, base_url="http://localhost") as async_client):
         yield async_client
+
+
+@pytest_asyncio.fixture
+async def manager_token(client, user_factory):
+    password = 'some_password'
+    hash_password = get_password_hash(password)
+    user = await user_factory(password=hash_password, is_manager=True)
+    data = {'username': user.email, 'password': password}
+
+    resp = await client.post(url='/api/auth/token', data=data)
+    access_token = resp.json()['access_token']
+    return access_token
 
 
 @pytest.fixture(scope="session")
@@ -78,3 +92,12 @@ class ProductFactory(AsyncSQLAlchemyFactory):
     name = factory.Faker('pystr')
     category_id = factory.SubFactory(CategoryFactory)
     price = factory.Faker('random_digit')
+
+
+@register
+class UserFactory(AsyncSQLAlchemyFactory):
+    class Meta:
+        model = User
+
+    email = factory.Faker('email')
+    password = factory.Faker('pystr')

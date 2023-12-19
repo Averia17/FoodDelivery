@@ -22,7 +22,7 @@ async def get_categories(db: AsyncSession = Depends(get_db)):
 async def create_category(
     body: CategoryCreateSchema,
     db: AsyncSession = Depends(get_db),
-    # is_manager: Exception | None = Depends(is_current_user_manager),
+    is_manager: Exception | None = Depends(is_current_user_manager),
 ):
     new_category = CategoryModel.create(
         db,
@@ -36,7 +36,7 @@ async def update_category(
     pk: int,
     category_attrs: CategoryUpdateSchema,
     db: AsyncSession = Depends(get_db),
-    # is_manager: Exception | None = Depends(is_current_user_manager),
+    is_manager: Exception | None = Depends(is_current_user_manager),
 ):
     return await CategoryModel.update(db, pk, category_attrs.model_dump(exclude_unset=True))
 
@@ -44,7 +44,7 @@ async def update_category(
 @router.delete("/{pk}", response_model=CategorySchema)
 async def delete_category(
     pk: int, db: AsyncSession = Depends(get_db),
-    # is_manager: Exception | None = Depends(is_current_user_manager)
+    is_manager: Exception | None = Depends(is_current_user_manager)
 ):
     category = await CategoryModel.get(db, pk)
     if not category:

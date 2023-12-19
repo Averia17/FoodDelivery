@@ -18,28 +18,40 @@ async def test_get_products(client, product_factory):
 
 
 @pytest.mark.asyncio
-async def test_create_product(client, category_factory):
+async def test_create_product(client, category_factory, manager_token):
     category = await category_factory()
     data = {'name': 'product1', 'price': 2.0, 'category_id': f'{category.id}'}
 
-    resp = await client.post(url="/api/products/", json=data)
+    resp = await client.post(
+        url="/api/products/",
+        json=data,
+        headers={"Authorization": f"Bearer {manager_token}"}
+    )
     assert resp.status_code == http.HTTPStatus.OK
     assert resp.json()['name'] == data['name']
 
 
 @pytest.mark.asyncio
-async def test_update_product(client, product_factory):
+async def test_update_product(client, product_factory, manager_token):
     product = await product_factory()
     data = {'name': 'product1'}
 
-    resp = await client.patch(url=f'/api/products/{product.id}', json=data)
+    resp = await client.patch(
+        url=f'/api/products/{product.id}',
+        json=data,
+        headers={"Authorization": f"Bearer {manager_token}"}
+    )
+
     assert resp.status_code == http.HTTPStatus.OK
     assert resp.json()['name'] == data['name']
 
 
 @pytest.mark.asyncio
-async def test_delete_product(client, product_factory):
+async def test_delete_product(client, product_factory, manager_token):
     product = await product_factory()
 
-    resp = await client.delete(url=f'/api/products/{product.id}')
+    resp = await client.delete(
+        url=f'/api/products/{product.id}',
+        headers={"Authorization": f"Bearer {manager_token}"}
+    )
     assert resp.status_code == http.HTTPStatus.OK

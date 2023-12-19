@@ -18,27 +18,38 @@ async def test_get_categories(client, category_factory):
 
 
 @pytest.mark.asyncio
-async def test_create_category(client):
+async def test_create_category(client, manager_token):
     data = {'name': 'category_1'}
 
-    resp = await client.post(url="/api/categories/", json=data)
+    resp = await client.post(
+        url="/api/categories/",
+        json=data,
+        headers={"Authorization": f"Bearer {manager_token}"}
+    )
     assert resp.status_code == http.HTTPStatus.OK
     assert resp.json()['name'] == data['name']
 
 
 @pytest.mark.asyncio
-async def test_update_category(client, category_factory):
+async def test_update_category(client, category_factory, manager_token):
     category = await category_factory()
     data = {'name': 'category'}
 
-    resp = await client.patch(url=f'/api/categories/{category.id}', json=data)
+    resp = await client.patch(
+        url=f'/api/categories/{category.id}',
+        json=data,
+        headers={"Authorization": f"Bearer {manager_token}"}
+    )
     assert resp.status_code == http.HTTPStatus.OK
     assert resp.json()['name'] == data['name']
 
 
 @pytest.mark.asyncio
-async def test_delete_category(client, category_factory):
+async def test_delete_category(client, category_factory, manager_token):
     category = await category_factory()
 
-    resp = await client.delete(url=f'/api/categories/{category.id}')
+    resp = await client.delete(
+        url=f'/api/categories/{category.id}',
+        headers={"Authorization": f"Bearer {manager_token}"}
+    )
     assert resp.status_code == http.HTTPStatus.OK
