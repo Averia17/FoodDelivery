@@ -30,6 +30,9 @@ async def test_create_product(client, category_factory, manager_token):
     assert resp.status_code == http.HTTPStatus.OK
     assert resp.json()['name'] == data['name']
 
+    resp = await client.post(url="/api/products/", json=data)
+    assert resp.status_code == http.HTTPStatus.UNAUTHORIZED
+
 
 @pytest.mark.asyncio
 async def test_update_product(client, product_factory, manager_token):
@@ -45,6 +48,9 @@ async def test_update_product(client, product_factory, manager_token):
     assert resp.status_code == http.HTTPStatus.OK
     assert resp.json()['name'] == data['name']
 
+    resp = await client.patch(url=f'/api/products/{product.id}', json=data)
+    assert resp.status_code == http.HTTPStatus.UNAUTHORIZED
+
 
 @pytest.mark.asyncio
 async def test_delete_product(client, product_factory, manager_token):
@@ -55,3 +61,6 @@ async def test_delete_product(client, product_factory, manager_token):
         headers={"Authorization": f"Bearer {manager_token}"}
     )
     assert resp.status_code == http.HTTPStatus.OK
+
+    resp = await client.delete(url=f'/api/products/{product.id}')
+    assert resp.status_code == http.HTTPStatus.UNAUTHORIZED
