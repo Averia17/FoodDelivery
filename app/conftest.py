@@ -19,12 +19,12 @@ from users.models import User
 
 @pytest_asyncio.fixture
 async def client():
-    async with (AsyncClient(app=app, base_url="http://localhost") as async_client):
+    async with AsyncClient(app=app, base_url="http://localhost") as async_client:
         yield async_client
 
 
 @pytest_asyncio.fixture
-async def manager_token(client, user_factory):
+async def token_manager(client, user_factory):
     password = 'some_password'
     hash_password = get_password_hash(password)
     user = await user_factory(password=hash_password, is_manager=True)

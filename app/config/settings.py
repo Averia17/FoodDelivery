@@ -18,19 +18,8 @@ def get_db_url(driver="asyncpg"):
     )
 
 
-def get_test_db_url():
-    return "postgresql+asyncpg://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}".format(
-        DB_USER=os.environ.get("POSTGRES_USER_TEST"),
-        DB_PASSWORD=os.environ.get("POSTGRES_PASSWORD_TEST"),
-        DB_HOST=os.environ.get("DB_HOST_TEST"),
-        DB_PORT=os.environ.get("DB_PORT_TEST"),
-        DB_NAME=os.environ.get("POSTGRES_DB_TEST"),
-    )
-
-
 BACKEND_CORS_ORIGINS: List[AnyHttpUrl] = []
 DATABASE_URL = get_db_url()
-TEST_DATABASE_URL = get_test_db_url()
 SYNC_DATABASE_URL = get_db_url("psycopg2")
 
 

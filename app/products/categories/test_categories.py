@@ -18,47 +18,47 @@ async def test_get_categories(client, category_factory):
 
 
 @pytest.mark.asyncio
-async def test_create_category(client, manager_token):
+async def test_create_category(client, token_manager):
     data = {'name': 'category_1'}
-
-    resp = await client.post(
-        url="/api/categories/",
-        json=data,
-        headers={"Authorization": f"Bearer {manager_token}"}
-    )
-    assert resp.status_code == http.HTTPStatus.OK
-    assert resp.json()['name'] == data['name']
 
     resp = await client.post(url="/api/categories/", json=data)
     assert resp.status_code == http.HTTPStatus.UNAUTHORIZED
 
-
-@pytest.mark.asyncio
-async def test_update_category(client, category_factory, manager_token):
-    category = await category_factory()
-    data = {'name': 'category'}
-
-    resp = await client.patch(
-        url=f'/api/categories/{category.id}',
+    resp = await client.post(
+        url="/api/categories/",
         json=data,
-        headers={"Authorization": f"Bearer {manager_token}"}
+        headers={"Authorization": f"Bearer {token_manager}"}
     )
     assert resp.status_code == http.HTTPStatus.OK
     assert resp.json()['name'] == data['name']
 
+
+@pytest.mark.asyncio
+async def test_update_category(client, category_factory, token_manager):
+    category = await category_factory()
+    data = {'name': 'category'}
+
     resp = await client.patch(url=f'/api/categories/{category.id}', json=data)
     assert resp.status_code == http.HTTPStatus.UNAUTHORIZED
 
-
-@pytest.mark.asyncio
-async def test_delete_category(client, category_factory, manager_token):
-    category = await category_factory()
-
-    resp = await client.delete(
+    resp = await client.patch(
         url=f'/api/categories/{category.id}',
-        headers={"Authorization": f"Bearer {manager_token}"}
+        json=data,
+        headers={"Authorization": f"Bearer {token_manager}"}
     )
     assert resp.status_code == http.HTTPStatus.OK
+    assert resp.json()['name'] == data['name']
+
+
+@pytest.mark.asyncio
+async def test_delete_category(client, category_factory, token_manager):
+    category = await category_factory()
 
     resp = await client.delete(url=f'/api/categories/{category.id}')
     assert resp.status_code == http.HTTPStatus.UNAUTHORIZED
+
+    resp = await client.delete(
+        url=f'/api/categories/{category.id}',
+        headers={"Authorization": f"Bearer {token_manager}"}
+    )
+    assert resp.status_code == http.HTTPStatus.OK
