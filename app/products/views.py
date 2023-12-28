@@ -51,7 +51,8 @@ async def update_product(
 
 @router.delete("/{pk}", response_model=ProductSchema)
 async def delete_product(
-    pk: int, db: AsyncSession = Depends(get_db), is_manager: Exception | None = Depends(is_current_user_manager)
+    pk: int, db: AsyncSession = Depends(get_db),
+    is_manager: Exception | None = Depends(is_current_user_manager)
 ):
     product = await ProductModel.get(db, pk)
     if not product:

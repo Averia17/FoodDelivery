@@ -20,8 +20,8 @@ async def authenticate_user(db: AsyncSession, email: str, password: str) -> User
 
 
 @router.post("/token", response_model=Token)
-async def login_for_access_token(user_data: UserAuthData, db: AsyncSession = Depends(get_db)):
-    user = await authenticate_user(db, user_data.email, user_data.password)
+async def login_for_access_token(user_data: OAuth2PasswordRequestForm = Depends(), db: AsyncSession = Depends(get_db)):
+    user = await authenticate_user(db, user_data.username, user_data.password)
     access_token = create_access_token(data={"sub": user.email})
     refresh_token = create_refresh_token(data={"sub": user.email})
     return {"access_token": access_token, "refresh_token": refresh_token}
