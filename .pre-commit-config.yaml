@@ -4,8 +4,8 @@ repos:
     hooks:
       - id: black
         language: python
-  - repo: https://github.com/PyCQA/autoflake
-    rev: v2.2.0
+  - repo: https://github.com/pycqa/isort
+    rev: 5.13.2
     hooks:
-      - id: autoflake
-        language: python
+      - id: isort
+        args: ["--profile", "black"]

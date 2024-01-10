@@ -12,8 +12,7 @@ class CRUDBase:
         return obj
 
     @classmethod
-    async def update(cls, db: AsyncSession, pk: int, obj_attrs: dict):
-        obj = await cls.get(db, pk)
+    async def update(cls, db: AsyncSession, obj, obj_attrs: dict):
         for attr, value in obj_attrs.items():
             setattr(obj, attr, value)
         await db.commit()
@@ -29,8 +28,7 @@ class CRUDBase:
         return (await db.execute(select(cls))).scalars().all()
 
     @classmethod
-    async def delete(cls, db: AsyncSession, pk: int):
-        obj = await cls.get(db, pk)
+    async def delete(cls, db: AsyncSession, obj):
         await db.delete(obj)
         await db.commit()
         return obj

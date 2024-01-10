@@ -11,6 +11,12 @@ docker-compose build
 ```
 docker-compose up
 ```
+To run unittests:
+1. Create database **_test_db_** if not exists
+2. Run command
+```
+docker-compose exec backend pytest
+```
 
 ## Backend Development
 Before commit changes you must install requirements

@@ -1,16 +1,16 @@
 import asyncio
 import inspect
+
 import factory
 import pytest
 import pytest_asyncio
-
-from pytest_factoryboy import register
 from httpx import AsyncClient
+from pytest_factoryboy import register
 
-from main import app
-from config.db.manager import sessionmanager
 from config.db import Base
+from config.db.manager import get_db, sessionmanager
 from config.settings import DATABASE_URL
+from main import app
 from products.categories.models import Category
 from products.models import Product
 from users.auth.services import get_password_hash
@@ -24,14 +24,14 @@ async def client():
 
 
 @pytest_asyncio.fixture
-async def token_manager(client, user_factory):
-    password = 'some_password'
+async def manager_token(client, user_factory):
+    password = "some_password"
     hash_password = get_password_hash(password)
     user = await user_factory(password=hash_password, is_manager=True)
-    data = {'username': user.email, 'password': password}
+    data = {"username": user.email, "password": password}
 
-    resp = await client.post(url='/api/auth/token', data=data)
-    access_token = resp.json()['access_token']
+    resp = await client.post(url="/api/auth/token", data=data)
+    access_token = resp.json()["access_token"]
     return access_token
 
 
@@ -54,6 +54,12 @@ async def create_tables(connection_test):
     async with sessionmanager.connect() as connection:
         await sessionmanager.drop_all(connection)
         await sessionmanager.create_all(connection)
+
+
+@pytest_asyncio.fixture
+async def test_db():
+    async with sessionmanager.session() as session:
+        yield session
 
 
 class AsyncSQLAlchemyFactory(factory.alchemy.SQLAlchemyModelFactory):
@@ -81,7 +87,7 @@ class CategoryFactory(AsyncSQLAlchemyFactory):
     class Meta:
         model = Category
 
-    name = factory.Faker('pystr')
+    name = factory.Faker("pystr")
 
 
 @register
@@ -89,9 +95,9 @@ class ProductFactory(AsyncSQLAlchemyFactory):
     class Meta:
         model = Product
 
-    name = factory.Faker('pystr')
+    name = factory.Faker("pystr")
     category_id = factory.SubFactory(CategoryFactory)
-    price = factory.Faker('random_digit')
+    price = factory.Faker("random_digit")
 
 
 @register
@@ -99,5 +105,6 @@ class UserFactory(AsyncSQLAlchemyFactory):
     class Meta:
         model = User
 
-    email = factory.Faker('email')
-    password = factory.Faker('pystr')
+    email = factory.Faker("email")
+    password = factory.Faker("pystr")
+    phone_number = factory.Sequence(lambda index: f"+37529112223{index}")
