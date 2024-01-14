@@ -1,28 +1,33 @@
-from fastapi_filter import FilterDepends
-
-from config.db.manager import get_db, is_current_user_manager
 from fastapi import APIRouter, Depends, HTTPException
+from fastapi_filter import FilterDepends
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from products.models import Product as ProductModel
-from products.schemas import ProductSchema, ProductCreateSchema, ProductUpdateSchema, ProductFilter
+from config.db.manager import get_db
+from config.services import get_object_or_404
+from products.models import Product
+from products.schemas import (
+    ProductCreateSchema,
+    ProductFilter,
+    ProductSchema,
+    ProductUpdateSchema,
+)
+from users.auth.services import is_current_user_manager
 
 router = APIRouter()
 
 
 @router.get("/{pk}", response_model=ProductSchema)
 async def get_product(pk: int, db: AsyncSession = Depends(get_db)):
-    return await ProductModel.get(db, pk)
+    return await get_object_or_404(db, Product, pk)
 
 
 @router.get("/", response_model=list[ProductSchema])
 async def get_products(
-    product_filter: ProductFilter = FilterDepends(ProductFilter),
-    db: AsyncSession = Depends(get_db)
+    product_filter: ProductFilter = FilterDepends(ProductFilter), db: AsyncSession = Depends(get_db)
 ):
-    query = product_filter.filter(select(ProductModel))
-    products = await ProductModel.filter(db, query)
+    query = product_filter.filter(select(Product))
+    products = await Product.filter(db, query)
     return products
 
 
@@ -32,7 +37,7 @@ async def create_product(
     db: AsyncSession = Depends(get_db),
     is_manager: Exception | None = Depends(is_current_user_manager),
 ):
-    new_product = ProductModel.create(
+    new_product = Product.create(
         db,
         **body.model_dump(exclude_unset=True),
     )
@@ -46,16 +51,13 @@ async def update_product(
     db: AsyncSession = Depends(get_db),
     is_manager: Exception | None = Depends(is_current_user_manager),
 ):
-    return await ProductModel.update(db, pk, product_attrs.model_dump(exclude_unset=True))
+    product = await get_object_or_404(db, Product, pk)
+    return await Product.update(db, product, product_attrs.model_dump(exclude_unset=True))
 
 
 @router.delete("/{pk}", response_model=ProductSchema)
 async def delete_product(
-    pk: int, db: AsyncSession = Depends(get_db),
-    is_manager: Exception | None = Depends(is_current_user_manager)
+    pk: int, db: AsyncSession = Depends(get_db), is_manager: Exception | None = Depends(is_current_user_manager)
 ):
-    product = await ProductModel.get(db, pk)
-    if not product:
-        raise HTTPException(status_code=404, detail="Product not found")
-    product = await ProductModel.delete(db, pk)
-    return product
+    product = await get_object_or_404(db, Product, pk)
+    return await Product.delete(db, product)
