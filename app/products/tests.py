@@ -18,9 +18,16 @@ async def test_get_products(client, product_factory):
 
 
 @pytest.mark.asyncio
-async def test_create_product(client, category_factory, manager_token):
+async def test_create_product(client, category_factory, manager_token, ingredient_factory):
     category = await category_factory()
-    data = {"name": "product1", "price": 2.0, "category_id": f"{category.id}"}
+    ingredient1 = await ingredient_factory()
+    ingredient2 = await ingredient_factory()
+    data = {
+        "name": "product1",
+        "price": 2.0,
+        "category_id": f"{category.id}",
+        "ingredients": [ingredient1.id, ingredient2.id],
+    }
 
     resp = await client.post(url="/api/products/", json=data)
     assert resp.status_code == http.HTTPStatus.UNAUTHORIZED

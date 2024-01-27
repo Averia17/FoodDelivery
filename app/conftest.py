@@ -12,6 +12,7 @@ from config.db.manager import get_db, sessionmanager
 from config.settings import DATABASE_URL
 from main import app
 from products.categories.models import Category
+from products.ingredients.models import Ingredient
 from products.models import Product
 from users.auth.services import get_password_hash
 from users.models import User
@@ -87,7 +88,7 @@ class CategoryFactory(AsyncSQLAlchemyFactory):
     class Meta:
         model = Category
 
-    name = factory.Faker("pystr")
+    name = factory.Sequence(lambda index: f"Ingredient {index}")
 
 
 @register
@@ -95,7 +96,7 @@ class ProductFactory(AsyncSQLAlchemyFactory):
     class Meta:
         model = Product
 
-    name = factory.Faker("pystr")
+    name = factory.Sequence(lambda index: f"Ingredient {index}")
     category_id = factory.SubFactory(CategoryFactory)
     price = factory.Faker("random_digit")
 
@@ -108,3 +109,11 @@ class UserFactory(AsyncSQLAlchemyFactory):
     email = factory.Faker("email")
     password = factory.Faker("pystr")
     phone_number = factory.Sequence(lambda index: f"+37529112223{index}")
+
+
+@register
+class IngredientFactory(AsyncSQLAlchemyFactory):
+    class Meta:
+        model = Ingredient
+
+    name = factory.Sequence(lambda index: f"Ingredient {index}")

@@ -1,8 +1,10 @@
 from typing import Optional
-from fastapi_filter.contrib.sqlalchemy import Filter
 
+from fastapi_filter.contrib.sqlalchemy import Filter
 from pydantic import BaseModel
 
+from products.categories.schemas import CategorySchema
+from products.ingredients.schemas import IngredientSchema
 from products.models import Product
 
 
@@ -15,17 +17,27 @@ class ProductFilter(Filter):
     class Constants(Filter.Constants):
         model = Product
         search_field_name = "search"
-        search_model_fields = ["name", ]
+        search_model_fields = [
+            "name",
+        ]
 
 
-class ProductSchema(BaseModel):
+class ProductBaseSchema(BaseModel):
     id: Optional[int] = None
     name: Optional[str] = None
     is_active: Optional[bool] = True
     description: Optional[str] = None
     discount: Optional[int] = None
     price: Optional[float] = None
+
+
+class ProductSchema(ProductBaseSchema):
     category_id: Optional[int] = None
+
+
+class ProductDetailedSchema(ProductBaseSchema):
+    category: Optional[CategorySchema] = None
+    ingredients: Optional[list[IngredientSchema]] = None
 
 
 class ProductCreateSchema(BaseModel):
@@ -34,7 +46,8 @@ class ProductCreateSchema(BaseModel):
     discount: int = 0
     price: float
     category_id: int
+    ingredients: list[int]
 
 
 class ProductUpdateSchema(ProductSchema):
-    pass
+    ingredients: Optional[list[int]] = None

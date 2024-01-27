@@ -4,10 +4,12 @@ repos:
     hooks:
       - id: black
         language: python
-  - repo: https://github.com/pycqa/isort
-    rev: 5.13.2
+  - repo: local
     hooks:
       - id: isort
+        name: isort
+        entry: isort
+        language: python
   - repo: local
     hooks:
     - id: pytest
