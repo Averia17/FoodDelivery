@@ -1,8 +1,9 @@
 from logging.config import fileConfig
 
+from sqlalchemy import engine_from_config, pool
+
 from alembic import context
 from config.settings import SYNC_DATABASE_URL
-from sqlalchemy import engine_from_config, pool
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -18,11 +19,12 @@ if config.config_file_name is not None:
 
 
 from config.db import Base
+from products.categories.models import Category
+from products.ingredients.models import Ingredient
+from products.models import Product, ProductIngredientAssociation
 
 # imported for Alembic
 from users.models import User
-from products.models import Product
-from products.categories.models import Category
 
 config.set_main_option("sqlalchemy.url", SYNC_DATABASE_URL)
 target_metadata = Base.metadata
