@@ -24,9 +24,7 @@ async def set_ingredients_to_product(
     product = await db.scalar(
         select(Product).where(Product.id == product_id).options(selectinload(Product.ingredients)),
     )
-    product.ingredients = []
-    for ingredient_id in ingredients:
-        ingredient = await db.scalar(select(Ingredient).where(Ingredient.id == ingredient_id))
-        product.ingredients.append(ingredient)
+    ingredients = await db.scalars(select(Ingredient).where(Ingredient.id.in_(ingredients)))
+    product.ingredients = list(ingredients)
     await db.commit()
     await db.refresh(product)

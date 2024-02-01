@@ -10,7 +10,3 @@ class IngredientSchema(BaseModel):
 
 class IngredientCreateSchema(IngredientSchema):
     name: str
-
-
-class IngredientUpdateSchema(IngredientSchema):
-    pass

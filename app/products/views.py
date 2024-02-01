@@ -65,16 +65,11 @@ async def update_product(
 ):
     product_attrs = product_attrs.model_dump(exclude_unset=True)
     product = await get_object_or_404(db, Product, pk)
-    try:
-        ingredients = product_attrs.pop("ingredients")
-    except KeyError:
-        return await Product.update(db, product, product_attrs)
-
     # TODO: Тут ингредиенты польностью перезаписываются, при изменении ингредиентов в продукте, нужно заново прописывать
     #  весь список, нужно подумать подходит ли нам такой вариант, или нужно переделать.
-
-    await set_ingredients_to_product(pk, ingredients, db)
-
+    ingredients = product_attrs.pop("ingredients", [])
+    if ingredients:
+        await set_ingredients_to_product(pk, ingredients, db)
     return await Product.update(db, product, product_attrs)
 
 

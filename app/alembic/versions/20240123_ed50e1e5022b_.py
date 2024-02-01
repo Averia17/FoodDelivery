@@ -6,14 +6,26 @@ Create Date: 2024-01-23 16:55:08.996677
 
 """
 import sqlalchemy as sa
+from sqlalchemy import orm, select
 
 from alembic import op
+from users.models import User
 
 # revision identifiers, used by Alembic.
 revision = "ed50e1e5022b"
 down_revision = "002f3b8ea2e3"
 branch_labels = None
 depends_on = None
+
+
+def update_phone_numbers():
+    bind = op.get_bind()
+    session = orm.Session(bind=bind)
+
+    users = session.scalars(select(User)).all()
+    for index, user in enumerate(users):
+        user.phone_number = f"+37529000000{str(index)}"
+    session.commit()
 
 
 def upgrade() -> None:

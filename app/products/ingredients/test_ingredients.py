@@ -2,8 +2,6 @@ import http
 
 import pytest
 
-from users.models import User
-
 
 class TestGetIngredients:
     @pytest.mark.asyncio
@@ -15,11 +13,17 @@ class TestGetIngredients:
         assert len(resp.json()) == len(ingredients)
         assert sorted([p.id for p in ingredients]) == sorted([data["id"] for data in resp.json()])
 
-        resp = await client.get(f"api/ingredients/{ingredients[0].id}")
-        assert resp.status_code == http.HTTPStatus.OK
-        assert resp.json()["name"] == ingredients[0].name
+    @pytest.mark.asyncio
+    async def test_get_detailed_ingredient(self, client, ingredient_factory):
+        ingredient = await ingredient_factory()
 
-        resp = await client.get(f"api/ingredients/11111")
+        resp = await client.get(f"api/ingredients/{ingredient.id}")
+        assert resp.status_code == http.HTTPStatus.OK
+        assert resp.json()["name"] == ingredient.name
+
+    @pytest.mark.asyncio
+    async def test_get_ingredient_witch_doesnt_exist(self, client):
+        resp = await client.get(f"api/ingredients/1")
         assert resp.status_code == http.HTTPStatus.NOT_FOUND
 
 
@@ -45,6 +49,9 @@ class TestCreateIngredients:
             json=data,
         )
         assert resp.status_code == http.HTTPStatus.UNAUTHORIZED
+
+        resp = await client.get("api/ingredients/")
+        assert len(resp.json()) == 0
 
 
 class TestUpdateIngredients:
@@ -73,19 +80,22 @@ class TestUpdateIngredients:
         )
         assert resp.status_code == http.HTTPStatus.UNAUTHORIZED
 
+        resp = await client.get(f"api/ingredients/{ingredient.id}")
+        assert resp.json()["name"] == ingredient.name
+
 
 class TestDeleteIngredients:
     @pytest.mark.asyncio
     async def test_valid_data(self, client, ingredient_factory, manager_token):
         ingredient = await ingredient_factory()
 
-        # resp = await client.delete(url=f"/api/products/{product.id}")
-        # assert resp.status_code == http.HTTPStatus.UNAUTHORIZED
-
         resp = await client.delete(
             url=f"/api/ingredients/{ingredient.id}", headers={"Authorization": f"Bearer {manager_token}"}
         )
         assert resp.status_code == http.HTTPStatus.OK
+
+        resp = await client.get(f"api/ingredients/{ingredient.id}")
+        assert resp.status_code == http.HTTPStatus.NOT_FOUND
 
     @pytest.mark.asyncio
     async def test_unauthorized(self, client, ingredient_factory):
@@ -95,3 +105,7 @@ class TestDeleteIngredients:
             url=f"/api/ingredients/{ingredient.id}",
         )
         assert resp.status_code == http.HTTPStatus.UNAUTHORIZED
+
+        resp = await client.get(f"api/ingredients/{ingredient.id}")
+        assert resp.status_code == http.HTTPStatus.OK
+        assert resp.json()["name"] == ingredient.name

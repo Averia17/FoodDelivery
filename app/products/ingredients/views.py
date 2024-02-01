@@ -4,11 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from config.db.manager import get_db
 from config.services import get_object_or_404
 from products.ingredients.models import Ingredient
-from products.ingredients.schemas import (
-    IngredientCreateSchema,
-    IngredientSchema,
-    IngredientUpdateSchema,
-)
+from products.ingredients.schemas import IngredientCreateSchema, IngredientSchema
 from users.auth.services import is_current_user_manager
 
 router = APIRouter()
@@ -40,7 +36,7 @@ async def create_ingredient(
 @router.patch("/{pk}", response_model=IngredientSchema)
 async def update_ingredient(
     pk: int,
-    ingredient_attrs: IngredientUpdateSchema,
+    ingredient_attrs: IngredientSchema,
     db: AsyncSession = Depends(get_db),
     is_manager: Exception | None = Depends(is_current_user_manager),
 ):
