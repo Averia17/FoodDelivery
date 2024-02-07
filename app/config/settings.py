@@ -18,7 +18,9 @@ def get_db_url(driver="asyncpg"):
     )
 
 
-BACKEND_CORS_ORIGINS: List[AnyHttpUrl] = []
+BACKEND_CORS_ORIGINS: List[AnyHttpUrl] = [
+    "http://localhost:3000",
+]
 DATABASE_URL = get_db_url()
 SYNC_DATABASE_URL = get_db_url("psycopg2")
 
