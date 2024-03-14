@@ -24,7 +24,6 @@ async def test_create_product(client, category_factory, manager_token, ingredien
     ingredient2 = await ingredient_factory()
     data = {
         "name": "product1",
-        "price": 2.0,
         "category_id": f"{category.id}",
         "ingredients": [ingredient1.id, ingredient2.id],
     }

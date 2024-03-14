@@ -14,5 +14,5 @@ class Ingredient(Base, CRUDBase):
     name: Mapped[str] = mapped_column(String(50), unique=True, nullable=False)
 
     products: Mapped[list["Product"]] = relationship(
-        secondary="productingredientassociation", back_populates="ingredients"
+        secondary="product_ingredient_association", back_populates="ingredients"
     )

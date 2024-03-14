@@ -18,10 +18,13 @@ if config.config_file_name is not None:
 # for 'autogenerate' support
 
 
+from basket.models import BasketProduct
 from config.db import Base
 from products.categories.models import Category
 from products.ingredients.models import Ingredient
 from products.models import Product, ProductIngredientAssociation
+from products.product_variants.models import ProductVariant
+from promocodes.models import PromoCode
 
 # imported for Alembic
 from users.models import User

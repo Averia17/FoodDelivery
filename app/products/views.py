@@ -2,7 +2,6 @@ from fastapi import APIRouter, Depends
 from fastapi_filter import FilterDepends
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import joinedload, selectinload
 
 from config.db.manager import get_db
 from config.services import get_object_or_404, set_ingredients_to_product
@@ -21,12 +20,7 @@ router = APIRouter()
 
 @router.get("/{pk}", response_model=ProductDetailedSchema)
 async def get_product(pk: int, db: AsyncSession = Depends(get_db)):
-    product = await db.scalar(
-        select(Product)
-        .where(Product.id == pk)
-        .options(joinedload(Product.category))
-        .options(selectinload(Product.ingredients))
-    )
+    product = await Product.get_by_id(db=db, id=pk)
     return product
 
 

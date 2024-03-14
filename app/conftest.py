@@ -1,4 +1,5 @@
 import asyncio
+import datetime
 import inspect
 
 import factory
@@ -7,13 +8,16 @@ import pytest_asyncio
 from httpx import AsyncClient
 from pytest_factoryboy import register
 
+from basket.models import BasketProduct
 from config.db import Base
-from config.db.manager import get_db, sessionmanager
+from config.db.manager import sessionmanager
 from config.settings import DATABASE_URL
 from main import app
 from products.categories.models import Category
 from products.ingredients.models import Ingredient
 from products.models import Product
+from products.product_variants.models import ProductVariant
+from promocodes.models import PromoCode
 from users.auth.services import get_password_hash
 from users.models import User
 
@@ -22,6 +26,18 @@ from users.models import User
 async def client():
     async with AsyncClient(app=app, base_url="http://localhost") as async_client:
         yield async_client
+
+
+@pytest_asyncio.fixture
+async def user_token(client, user_factory):
+    password = "some_password"
+    hash_password = get_password_hash(password)
+    user = await user_factory(password=hash_password)
+    data = {"username": user.email, "password": password}
+
+    resp = await client.post(url="/api/auth/token", data=data)
+    access_token = resp.json()["access_token"]
+    return access_token
 
 
 @pytest_asyncio.fixture
@@ -98,7 +114,6 @@ class ProductFactory(AsyncSQLAlchemyFactory):
 
     name = factory.Sequence(lambda index: f"Ingredient {index}")
     category_id = factory.SubFactory(CategoryFactory)
-    price = factory.Faker("random_digit")
 
 
 @register
@@ -117,3 +132,35 @@ class IngredientFactory(AsyncSQLAlchemyFactory):
         model = Ingredient
 
     name = factory.Sequence(lambda index: f"Ingredient {index}")
+
+
+@register
+class ProductVariantFactory(AsyncSQLAlchemyFactory):
+    class Meta:
+        model = ProductVariant
+
+    product_id = factory.SubFactory(ProductFactory)
+    price = factory.Faker("pyint", min_value=0, max_value=99)
+    discount = factory.Faker("pyint", min_value=0, max_value=99)
+    weight = factory.Faker("pyint")
+
+
+@register
+class PromoCodeFactory(AsyncSQLAlchemyFactory):
+    class Meta:
+        model = PromoCode
+
+    id = factory.Sequence(lambda index: f"Promo_code_{index}")
+    valid_from = factory.Faker("past_datetime", tzinfo=datetime.UTC)
+    valid_until = factory.Faker("future_datetime", tzinfo=datetime.UTC)
+    description = factory.Faker("pystr")
+    discount = factory.Faker("pyint", min_value=1, max_value=99)
+
+
+@register
+class BasketProductFactory(AsyncSQLAlchemyFactory):
+    class Meta:
+        model = BasketProduct
+
+    product_variant_id = factory.SubFactory(ProductVariantFactory)
+    count = factory.Faker("pyint", min_value=0, max_value=10)

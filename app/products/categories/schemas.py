@@ -9,7 +9,7 @@ class CategorySchema(BaseModel):
     name: Optional[str] = None
 
 
-class CategoryCreateSchema(CategorySchema):
+class CategoryCreateSchema(BaseModel):
     name: str
 
 
