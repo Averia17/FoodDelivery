@@ -9,8 +9,9 @@ from products.models import Product
 
 
 class ProductFilter(Filter):
-    price__lte: Optional[float] = None
-    price__gte: Optional[float] = None
+    # TODO: price is option of product_variant, we need to add filter there
+    # price__lte: Optional[float] = None
+    # price__gte: Optional[float] = None
     category_id: Optional[int] = None
     search: Optional[str] = None
 
@@ -28,7 +29,6 @@ class ProductBaseSchema(BaseModel):
     is_active: Optional[bool] = True
     description: Optional[str] = None
     discount: Optional[int] = None
-    price: Optional[float] = None
 
 
 class ProductSchema(ProductBaseSchema):
@@ -44,7 +44,6 @@ class ProductCreateSchema(BaseModel):
     name: str
     is_active: bool = True
     discount: int = 0
-    price: float
     category_id: int
     ingredients: list[int]
 

@@ -1,8 +1,6 @@
-import re
-
-from sqlalchemy import Boolean, Column, String, select
+from sqlalchemy import Boolean, String, select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import validates
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from config.db import Base
 from config.db.base_crud import CRUDBase
@@ -16,8 +14,10 @@ class UserCRUD(CRUDBase):
 
 
 class User(Base, UserCRUD):
-    email = Column(String, unique=True, nullable=False)
-    phone_number = Column(String, unique=True, nullable=False)
-    full_name = Column(String, nullable=True)
-    is_manager = Column(Boolean, nullable=False, default=False)
-    password = Column(String, nullable=False)
+    email: Mapped[str] = mapped_column(String, unique=True, nullable=False)
+    phone_number: Mapped[str] = mapped_column(String, unique=True, nullable=False)
+    full_name: Mapped[str] = mapped_column(String, nullable=True)
+    is_manager: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+    password: Mapped[str] = mapped_column(String, nullable=False)
+
+    basket_products = relationship("BasketProduct")

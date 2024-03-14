@@ -8,5 +8,5 @@ class IngredientSchema(BaseModel):
     name: Optional[str] = None
 
 
-class IngredientCreateSchema(IngredientSchema):
+class IngredientCreateSchema(BaseModel):
     name: str

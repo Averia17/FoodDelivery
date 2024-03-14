@@ -60,3 +60,8 @@ async def get_current_user_from_token(db: AsyncSession = Depends(get_db), token:
 async def is_current_user_manager(user: User = Depends(get_current_user_from_token)):
     if not user.is_manager:
         raise HTTPException(status_code=403, detail="You are not manager")
+
+
+async def is_current_user_owner(user_id: int, current_user: User = Depends(get_current_user_from_token)):
+    if not user_id == current_user.id:
+        raise HTTPException(status_code=403, detail=f"You are not allowed to do it!")
